@@ -1,11 +1,21 @@
 const express = require("express");
 const https = require("https");
+const bodyParser = require("body-parser");
 
 
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", function (req, res) {
-	const url = "https://api.openweathermap.org/data/2.5/weather?q=London&appid=2b293abb60b60f466c257fc44dc8f4ae&units=metric"
+	res.sendFile(__dirname + "/index.html")	
+});
+
+app.post("/", function (req, res) {
+
+	const query = req.body.cityName;
+	const apiKey = "2b293abb60b60f466c257fc44dc8f4ae";
+	const units = "metric"
+	const url = "https://api.openweathermap.org/data/2.5/weather?q=" + query + "&appid=" + apiKey + "&units=" + units;
 	https.get(url, function(response) {
 		console.log(response);
 
@@ -16,12 +26,14 @@ app.get("/", function (req, res) {
 			const icon = weatherData.weather[0].icon;
 			const imgUrl = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
 			res.write("<p>The weather is " + weatherDescription + "</p>");
-			res.write("<h1>The temp in London is " + temp + " degree Celcius.</h1>");
+			res.write("<h1>The temp in "+ query +" is " + temp + " degree Celcius.</h1>");
 			res.write("<img src=" + imgUrl +" >")
 			res.send();
 		})
 	})
-});
+})
+
+    
 
 app.listen(3000, function() {
 	console.log("The server is listening");
